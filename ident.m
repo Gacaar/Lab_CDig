@@ -10,9 +10,10 @@ stepAmp = 15;   %Amplitude do degrau de entrada
 
 %% Identificacao dos parametros por analise da resposta ao degrau
 
-tp = 0.1455;    %Instante de pico
-ymax = 21.7704; %Valor de pico da saida
-yfin = 15.1050; %Valor final da saida
+ymax = max(x(:,2)); %Valor de pico da saida
+ind = find(x(:,2)==ymax); %acha indices que contem o ymax
+tp = mean(x(ind,1));    %Instante de pico
+yfin = x(end,2); %Valor final da saida
 
 [a,b,k] = paramIdent(tp, ymax, yfin, stepAmp);
 
@@ -139,7 +140,7 @@ figure();hold on;title('Saida simulada e estimada');
 plot(Y,'k');stairs(Ye,'r');
 legend('Ysim(k)','Yest(k)');
 
-figure();hold on;title('Erro de estimação');
+figure();hold on;title('Erro de estimaï¿½ï¿½o');
 plot(e,'k*');
 
 figure();hold on;title('Variaveis de estado');
