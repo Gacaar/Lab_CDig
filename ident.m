@@ -46,7 +46,7 @@ GYtfest = tfest(data,2,0); %Estimando com 2 polos e 0 zeros
 GYssest = ssest(data,2); %Estimando com dimensao 2
 
 %% Comparando os modelos obtidos.
-% compare(data,GY, GYc, GYss, GYtfest, GYssest);
+compare(data,GY, GYc, GYss, GYtfest, GYssest);
 
 %% Discretizacao do modelo em espaco de estados
 Ts = 0.1; %Define o tempo de amostragem a ser usado no projeto
