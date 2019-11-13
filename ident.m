@@ -9,11 +9,12 @@ Ts = 0.001; %Tempo de amostragem
 stepAmp = 15;   %Amplitude do degrau de entrada
 
 %% Identificacao dos parametros por analise da resposta ao degrau
-
-ymax = max(x(:,2)); %Valor de pico da saida
-ind = find(x(:,2)==ymax); %acha indices que contem o ymax
-tp = mean(x(ind,1));    %Instante de pico
-yfin = x(end,2); %Valor final da saida
+t = x(:,1); %vetor tempo
+y = x(:,2); %vetor saida
+ymax = max(y); %Valor de pico da saida
+ind = find(y==ymax); %acha indices que contem o ymax
+tp = mean(t(ind));    %Instante de pico
+yfin = y(end); %Valor final da saida
 
 [a,b,k] = paramIdent(tp, ymax, yfin, stepAmp);
 
@@ -115,7 +116,7 @@ end
 %% Simula o sistema em espaco de estados
 
 Len = 50;
-Xo = [0.25;0.1];
+Xo = [0.001;0.005];
 R = [zeros(1,5), ones(1,Len-5)];
 U = [zeros(1,Len)];
 X = zeros(2,Len+1);
@@ -128,12 +129,12 @@ e = zeros(1,Len);
 
 for k=1:Len
     U(k) = R(k)-F*Xe(:,k);
-    X(:,k+1) = G*X(:,k)+H*U(k);
+    X(:,k+1) = G*X(:,k)+(H/Kc)*U(k);
     Y(k) = C*X(:,k);
     
     Ye(k) = C*Xe(:,k);
     e(k) = Y(k)-Ye(k);
-    Xe(:,k+1) = G*Xe(:,k)+H*U(k)+L*(e(k));
+    Xe(:,k+1) = G*Xe(:,k)+(H/Kc)*U(k)+L*(e(k));
 end
 
 figure();hold on;title('Saida simulada e estimada');
