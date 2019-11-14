@@ -1,3 +1,5 @@
+%% Script para identificacao dos parametros e determinacao dos ganhos para controle PI em Espaco de Estados
+
 close all;
 clear all;
 
@@ -5,67 +7,38 @@ clear all;
 
 load('x.mat')
 kp = 420; %Ganho aplicado na planta
-Ts = 0.001; %Tempo de amostragem
+fd = 13; %Fator de decimacao
+Ts = 0.001*fd; %Tempo de amostragem
 stepAmp = 15;   %Amplitude do degrau de entrada
 
 %% Identificacao dos parametros por analise da resposta ao degrau
-t = x(:,1); %vetor tempo
-y = x(:,2); %vetor saida
+
+
+t = x(1:end,1); %vetor tempo
+y = x(1:end,2); %vetor saida
 ymax = max(y); %Valor de pico da saida
 ind = find(y==ymax); %acha indices que contem o ymax
 tp = mean(t(ind));    %Instante de pico
 yfin = y(end); %Valor final da saida
 
+
 [a,b,k] = paramIdent(tp, ymax, yfin, stepAmp);
 
-% Criando FT de malha aberta e fechando a malha
-G = kp*tf([b],[1 a 0]);
-GYc = feedback(G,1);
-
-% Criando a FT de malha fechada diretamente, amplitude final leva em conta
-% a zona morta
-GY = tf([k],[1 a kp*b]);
-
-% Criando as matrizes de espaco de estados diretamente
+% Criando as matrizes de espaco de estados
 A = [0 1;0 -a];
 B = [0;b];
 C = [1 0];
 D = 0;
 GYss = ss(A,B,C,D);
-GYss = feedback(kp*GYss,1);
-    
-%% Identificacao usando tfest e ssest (toolbox de identificacao do matlab)
 
-% Passando os sinais de entrada e saida.
-% Atrasando o inicio do degraus acrescentando zeros antes
-% Removendo atraso da saida para nao identificar funcao de fase n minima
-data = iddata([zeros(3,1);x(:,2)],[zeros(3,1);x(:,3)],Ts);
-delay = delayest(data);
-data = iddata([zeros(3,1);x(delay+1:end,2)],[zeros(3,1);x(1:end-delay,3)],Ts);
-GYtfest = tfest(data,2,0); %Estimando com 2 polos e 0 zeros
-GYssest = ssest(data,2); %Estimando com dimensao 2
+GYssc = feedback(kp*GYss,1);
+% bode(GYssc);
 
-%% Comparando os modelos obtidos.
-compare(data,GY, GYc, GYss, GYtfest, GYssest);
-
-%% Discretizacao do modelo em espaco de estados
-Ts = 0.1; %Define o tempo de amostragem a ser usado no projeto
-
-
-% Usando o modelo obtido com tfest
-% [num den] = tfdata(GYtfest);
-% [A B C D] = tf2ss(num{1,1}, den{1,1});
-% GYss = ss(A,B,C,D);
-
-%Usando o modelo de espaco de estados
+% Discretizacao do modelo
 GYzss = c2d(GYss,Ts,'zoh');
+% rlocus(GYzss);
 
-% opt = stepDataOptions('StepAmplitude',15);
-% step(GY, 10,opt);
-% compare(data,GYzss);
-
-
-%% Inicio do projeto do controlador e observador
+% Setup para projeto
 G = GYzss.A;
 H = GYzss.B;
 C = GYzss.C;
@@ -94,12 +67,12 @@ end
 
 %% Criando realimentacao do controlador
 
-P = [0 0]; %Polos desejados no dominio z
+% P = [0 0]; %Polos desejados no dominio z
 
 % ou especifica em s e passa para z
 
-% P = [-10 -1]; %Polos desejados no dominio s
-% P = exp(P.*Ts); %Polos desejados em z
+P = [-1 -1]; %Polos desejados no dominio s
+P = exp(P.*Ts); %Polos desejados em z
 
 if rank(ctrb(GYzss))==2 %Verifica controlabilidade
     F = acker(G, H, P) %Determina matriz de realimentacao F
