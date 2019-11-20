@@ -50,10 +50,10 @@ D = GYzss.D;
 Ghat = [G H; zeros(1,size(G,2)) zeros(1,size(H,2))];
 Hhat = [zeros(size(H,1),1);1];
 
-P = [0 0 0]; %Polos desejados no dominio z
+%P = [0 0 0]; %Polos desejados no dominio z
 % ou especifica em s e passa para z
-% P = [-5 -5 -5]; %Polos desejados no dominio s
-% P = exp(P.*Ts); %Polos desejados em z
+ P = [-15 -20 -40]; %Polos desejados no dominio s
+ P = exp(P.*Ts); %Polos desejados em z
 
 if rank(ctrb(GYzss))==2 %Verifica controlabilidade
     Khat = acker(Ghat, Hhat, P) %Determina matriz de realimentacao F
