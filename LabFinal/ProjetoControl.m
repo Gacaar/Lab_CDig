@@ -71,7 +71,7 @@ end
 
 % ou especifica em s e passa para z
 
-P = [-1 -1]; %Polos desejados no dominio s
+P = [-5 -5]; %Polos desejados no dominio s
 P = exp(P.*Ts); %Polos desejados em z
 
 if rank(ctrb(GYzss))==2 %Verifica controlabilidade
@@ -79,7 +79,7 @@ if rank(ctrb(GYzss))==2 %Verifica controlabilidade
     %Simula e exibe o resultado
     Gc = G-H*F;
     SysCtl = ss(Gc,H,C,D, Ts);
-    Kc = dcgain(SysCtl); %Determina ajuste para ganho unitario
+    Kc = 1/dcgain(SysCtl); %Determina ajuste para ganho unitario
     Hc = H/Kc;
     SysCtl = ss(Gc,Hc,C,D, Ts);
     figure();
