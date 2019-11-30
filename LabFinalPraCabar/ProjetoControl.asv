@@ -1,7 +1,7 @@
 %% Script para identificacao dos parametros e determinacao dos ganhos para controle PI em Espaco de Estados
 
 close all;
-clear all;
+% clear all;
 
 %% Parametros do experimento
 
